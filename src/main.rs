@@ -9,24 +9,18 @@ const PLAYER_X: char = 'X';
 const PLAYER_Y: char = 'Y';
 
 fn main() {
-    //game();
-    let debug_board_a = [['X', 'X', 'X'], ['X', '-', '-'], ['X', '-', '-']];
-    draw_board(&debug_board_a);
-    check_victory(&debug_board_a, PLAYER_X);
+    game();
+    //let debug_board_a = [['X', 'X', 'X'], ['-', 'X', '-'], ['-', 'X', 'X']];
+    //draw_board(&debug_board_a);
+    //check_victory(&debug_board_a, PLAYER_X);
 }
 
 fn game() {
     let mut new_board = initialize_board();
-    let game_won = false;
-    let mut turn = 1;
+    let mut turn = 0;
 
     loop {
         draw_board(&new_board);
-
-        if turn >= BOARD_SPACES {
-            println!("Game has been drawn, no winners...");
-            break;
-        }
 
         println!("Turn {turn}:");
 
@@ -40,9 +34,17 @@ fn game() {
                 println!("Invalid move, pls try again");
             }
         }
+        turn += 1;
+        if turn >= BOARD_SPACES {
+            println!("Game has been drawn, no winners...");
+            break;
+        }
 
         draw_board(&new_board);
-        check_victory(&new_board, PLAYER_X);
+        if check_victory(&new_board, PLAYER_X) {
+            println!("PLAYER X WIN");
+            break;
+        }
 
         loop {
             println!("Player Y:");
@@ -54,60 +56,65 @@ fn game() {
                 println!("Invalid move, pls try again");
             }
         }
-        check_victory(&new_board, PLAYER_Y);
-
-        if game_won {
+        if check_victory(&new_board, PLAYER_Y) {
+            println!("PLAYER Y WIN");
             break;
         }
-
         turn += 1;
+        if turn >= BOARD_SPACES {
+            println!("Game has been drawn, no winners...");
+            break;
+        }
     }
 }
 
 fn check_victory(board: &[[char; BOARD_SIZE]; BOARD_SIZE], player: char) -> bool {
-    let mut i = 0;
     let mut win = false;
     let mut horizontal_check = [0; BOARD_SIZE];
     let mut vertical_check = [0; BOARD_SIZE];
+    let mut diagonal_check = 0;
+    let mut inverted_diagonal_check = 0;
 
-    println!("DEBUG");
+    let mut i = 0;
+    while i < BOARD_SIZE {
+        let mut j = 0;
 
-    for i in 1..BOARD_SIZE - 1 {
-        //while i < BOARD_SIZE {
-        //let mut j = 0;
-        for j in 1..BOARD_SIZE - 1 {
-            //while j < BOARD_SIZE {
+        while j < BOARD_SIZE {
             if board[i][j] == player {
                 horizontal_check[i] += 1;
-                let found = board[i][j];
-                let count = horizontal_check[i];
-                print!("Horizontal Check: ");
-                print!("Checking Coords {i} {j}");
-                println!("Found {found}, count at {count}");
             }
             if board[j][i] == player {
-                vertical_check[j] += 1;
-                let found = board[j][i];
-                let count = horizontal_check[j];
-                print!("Vertical Check: ");
-                print!("Checking Coords {j} {i}");
-                println!("Found {found}, count at {count}");
+                vertical_check[i] += 1;
             }
-            //j += 1;
+            j += 1;
         }
-        //i += 1;
+        if board[i][i] == player {
+            diagonal_check += 1;
+        }
+
+        let i_invert = BOARD_SIZE - 1 - i;
+        println!("{i_invert}");
+        if board[i_invert][i] == player {
+            inverted_diagonal_check += 1;
+        }
+
+        i += 1;
     }
+
     for x in horizontal_check {
-        println!("Horiz Total Check: {x}");
         if x >= BOARD_SIZE {
             win = true;
         }
     }
     for x in vertical_check {
-        println!("Vert Total Check: {x}");
         if x >= BOARD_SIZE {
             win = true;
         }
+    }
+    println!("{diagonal_check}");
+    println!("{inverted_diagonal_check}");
+    if diagonal_check >= BOARD_SIZE || inverted_diagonal_check >= BOARD_SIZE {
+        win = true;
     }
     win
 }
