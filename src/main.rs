@@ -149,8 +149,12 @@ fn validate_move(board: &[[char; BOARD_SIZE]; BOARD_SIZE], player_move: &[usize;
     if player_move[0] < BOARD_SIZE {
         if player_move[1] < BOARD_SIZE {
             valid_move = true;
-            if board[player_move[0]][player_move[1]] == EMPTY_SPACE {
+            let move_check = board[player_move[0]][player_move[1]];
+            if move_check == EMPTY_SPACE {
                 valid_move = true;
+            }
+            if move_check == PLAYER_X || move_check == PLAYER_Y {
+                valid_move = false;
             }
         }
     }
